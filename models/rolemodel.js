@@ -1,7 +1,7 @@
 // models/roleModel.js
 import mongoose from "mongoose";
 
-// Define the Role Schema
+
 const roleSchema = new mongoose.Schema({
   name: {
     type: String,
