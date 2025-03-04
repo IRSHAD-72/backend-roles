@@ -1,14 +1,14 @@
 // models/roleModel.js
 import mongoose from "mongoose";
 
-// Define the Role Schema
+
 const roleSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,  // Ensures the role names are unique
+    unique: true,  
     enum: ['admin', 'user', 'employee'],
-    default:'user',  // You can add more roles as needed
+    default:'user',  
   },
   description: {
     type: String,
