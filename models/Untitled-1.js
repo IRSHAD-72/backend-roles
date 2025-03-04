@@ -196,3 +196,13 @@
 //       message: "Logged Out",
 //     });
 // //   });
+// import express from 'express';
+// import { createRole } from '../controllers/roleController.js';
+// import { ensureAdmin } from '../middleware/auth.js';  // Assuming you have an authentication middleware
+
+// const router = express.Router();
+
+// // Add middleware to check if the user is an admin
+// router.post('/create-role', ensureAdmin, createRole);
+
+// export default router;
