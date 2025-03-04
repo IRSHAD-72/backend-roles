@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import Role from '../models/rolemodel.js';    
 
 export const signup = async (req, res) => {
-  const { fristname,lastname, email, password,role } = req.body;
+  const { fristname,lastname, email, password,role ='user' } = req.body;
      console.log("email received",email);
      console.log(req.body)
 
