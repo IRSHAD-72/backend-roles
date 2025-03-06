@@ -1,30 +1,27 @@
-
 import Auth from '../models/authModel.js'; 
-import bcrypt from 'bcryptjs';    
 import jwt from 'jsonwebtoken';
-import Role from '../models/rolemodel.js';    
+import bcrypt from 'bcryptjs';
 
 export const signup = async (req, res) => {
-  const { fristname,lastname, email, password } = req.body;
-     console.log("email received",email);
-     console.log(req.body)
+  const { firstname, lastname, email, password } = req.body;
+  console.log("email received", email);
+  console.log(req.body);
 
   try {
-    
     const existingAuth = await Auth.findOne({ email });
     if (existingAuth) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-  
+    // const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newAuth = new Auth({
-      fristname,
+      firstname,
       lastname,
       email,
       password: hashedPassword,
-    
+      roles: 'user', // Assign default role as 'user'
     });
 
     await newAuth.save();
@@ -41,26 +38,46 @@ export const signup = async (req, res) => {
   }
 };
 
-
-
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
+
   try {
-   
+    // Find user by email
     const user = await Auth.findOne({ email });
+    console.log("User found:", user);
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
+    // Log the entered password and stored hashed password
+    console.log("Entered password: ", password);
+    console.log("Stored hashed password: ", user.password);
+
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
     
-    const isMatch = await user.comparePassword(password);
+    
+    
+    
+    // Call comparePassword on the user instance
+    console.log("Password match result: ", isMatch);
+
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // Create a JWT token with user ID and role
+    const token = jwt.sign(
+      { userId: user._id, role: user.roles },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
+    // Return success response with token
     res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
     console.error(error);
@@ -80,7 +97,8 @@ export const profile = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving user data', error });
   }
 };
-export const  assignRoles = async (req, res) =>{
+
+export const assignRoles = async (req, res) => {
   const { userId, roleIds } = req.body;  // roleIds is an array of role ObjectIds
 
   // Validate input data
@@ -96,7 +114,7 @@ export const  assignRoles = async (req, res) =>{
     }
 
     // Find the roles by their IDs
-    const roles = await Role.find({ '_id': { $in: roleIds } });
+    const roles = await Auth.find({ '_id': { $in: roleIds } });
     if (roles.length !== roleIds.length) {
       return res.status(400).json({ message: 'One or more roles not found' });
     }

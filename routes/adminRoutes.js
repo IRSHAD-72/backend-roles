@@ -1,12 +1,21 @@
 import express from 'express';
-import AdminController from '../controllers/adminController.js';
+import { isAdmin, isEmployee, isUser } from '../middelware/authmiddleware.js'
 
 const router = express.Router();
-const adminController = new AdminController();
 
-router.post('/roles', adminController.createRole);
-router.get('/roles', adminController.getRoles);
-router.put('/roles/:id', adminController.updateRole);
-router.delete('/roles/:id', adminController.deleteRole);
+router.get('/admin-dashboard', isAdmin, (req, res) => {
+  // Admin only route
+  res.status(200).json({ message: 'Admin Dashboard' });
+});
+
+router.get('/employee-dashboard', isEmployee, (req, res) => {
+  // Employee or Admin can access this route
+  res.status(200).json({ message: 'Employee Dashboard' });
+});
+
+router.get('/user-page', isUser, (req, res) => {
+  // All users, employees, and admins can access this route
+  res.status(200).json({ message: 'User Page' });
+});
 
 export default router;
