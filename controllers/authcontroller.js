@@ -21,7 +21,7 @@ export const signup = async (req, res) => {
       lastname,
       email,
       password: hashedPassword,
-      roles: 'user', // Assign default role as 'user'
+      roles: '', // Assign default role as 'user'
     });
 
     await newAuth.save();
@@ -46,6 +46,7 @@ export const login = async (req, res) => {
   }
 
   try {
+    
     // Find user by email
     const user = await Auth.findOne({ email });
     console.log("User found:", user);
@@ -76,9 +77,16 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-
+    let message = 'Login successful';
+    if (user.roles.includes('admin')) {
+      message = 'Admin login successful';
+    } else if (user.roles.includes('employee')) {
+      message = 'Employee login successful';
+    } else if (user.roles.includes('user')) {
+      message = 'User login successful';
+    }
     // Return success response with token
-    res.status(200).json({ message: 'Login successful', token });
+    //res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error logging in', error });
@@ -112,6 +120,7 @@ export const assignRoles = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+    console.log("User found:",user)
 
     // Find the roles by their IDs
     const roles = await Auth.find({ '_id': { $in: roleIds } });

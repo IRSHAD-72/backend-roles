@@ -17,7 +17,7 @@ router.get('/profile', authenticateToken, profile);
 
 
 // Route to assign roles to a user
-router.put('/assign-roles',assignRoles);
+router.post('/assign-roles',assignRoles);
 
 
 
